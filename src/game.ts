@@ -10,12 +10,7 @@ export default class Demo extends Phaser.Scene {
     }
 
     player: Phaser.Physics.Arcade.Sprite;
-    explosion1: Explosion;
-    explosion2: Explosion;
-    explosion3: Explosion;
-    explosion4: Explosion;
-    explosion5: Explosion;
-
+   
     preload() {
         // Load in images and sprites
         this.load.spritesheet('player', 'player_walk_strip6.png',
@@ -32,9 +27,9 @@ export default class Demo extends Phaser.Scene {
     }
 
     update(time, delta) {
-        if (this.explosion1) {
-        this.explosion1.update(time, delta);
-    }
+        //if (this.explosion1) {
+        //this.explosion1.update(time, delta);
+   // }
 
         this.player.setVelocityX(0);
         this.player.setVelocityY(0);
@@ -97,7 +92,7 @@ export default class Demo extends Phaser.Scene {
             key: 'explode',
             frames: this.anims.generateFrameNumbers('explosion', { start: 0, end: 80 }),
             frameRate: 40,
-            repeat: 0
+            repeat: 1
         });
 
         for (let x = 0; x < 10; x++) {
@@ -106,7 +101,7 @@ export default class Demo extends Phaser.Scene {
                 var walltype = Math.floor(Math.random() * 3);
                 if (walltype == 1) {
                     var brick = bricks.create(x * 60 + 30, y * 60 + 30);
-                    this.physics.add.collider(brick, player, enemyHitCallback);
+                    this.physics.add.existing(brick);
                 }
                 if ((walltype == 2) && (isOdd(x))) {
                     bricksGrey.create(x * 60 + 30, y * 60 + 30);
@@ -159,19 +154,30 @@ export default class Demo extends Phaser.Scene {
 
 
         // var explosion = this.physics.add.sprite(30, 30, 'explosion');
-        var pokus = this;
+        var scene = this;
         this.input.keyboard.on('keydown_SPACE', function (event) {
             var bomb = playerBullets.create(RoundTo(player.x - 30, 60) + 30, RoundTo(player.y - 30, 60) + 30).setActive(true).setVisible(true);
-            this.explosion1 = new Explosion(pokus, bomb.x, bomb.y).setActive(true).setVisible(true).restartBorn();
-            this.explosion2 =new Explosion(pokus, bomb.x - 60, bomb.y).setActive(true).setVisible(true).restartBorn();
-            this.explosion3 =new Explosion(pokus, bomb.x - 60, bomb.y).setActive(true).setVisible(true).restartBorn();
-            this.explosion4 =new Explosion(pokus, bomb.x + 60, bomb.y).setActive(true).setVisible(true).restartBorn();
-            this.explosion5 =new Explosion(pokus, bomb.x, bomb.y - 60).setActive(true).setVisible(true).restartBorn();
+
             
+            var explosion1 = new Explosion(scene, bomb.x, bomb.y);
+            var explosion2 =new Explosion(scene, bomb.x - 60, bomb.y);
+            var explosion3 =new Explosion(scene, bomb.x + 60, bomb.y);
+            var explosion4 =new Explosion(scene, bomb.x , bomb.y + 60);
+            var  explosion5 =new Explosion(scene, bomb.x, bomb.y - 60);
 
-
-
-            // this.physics.add.overlap(explosion1, explosion1, this.enemyHitCallback);
+            explosion1.setVisible(false);
+            explosion2.setVisible(false);
+            explosion3.setVisible(false);
+            explosion4.setVisible(false);
+            explosion5.setVisible(false);
+            
+            playerExplosions.add(explosion1,true);
+            playerExplosions.add(explosion2,true);
+            playerExplosions.add(explosion3,true);
+            playerExplosions.add(explosion4,true);
+            playerExplosions.add(explosion5,true);
+ 
+            scene.physics.add.overlap(explosion1, bricks, enemyHitCallback);
             //        var pokus = this;
             //        bricks.getChildren().forEach(function(brick){
             //            pokus.physics.overlap(brick,explosion1, function(brick, explosion1) {brick.setVisible(false);   }, null, this);           });
@@ -183,9 +189,8 @@ export default class Demo extends Phaser.Scene {
 
 
         //  });
-        function enemyHitCallback(brick, player) {
-
-            brick.destroy();
+        function enemyHitCallback(explosion, brick) {
+            explosion.destroyBrick(brick);
         }
 
         function isOdd(num) { return (num % 2) == 1; }

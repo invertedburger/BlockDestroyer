@@ -12,10 +12,8 @@ export class Bomb extends Phaser.GameObjects.Sprite {
         if (this.born > 1800) {
             this.setActive(false);
             this.setVisible(false);
+            this.destroy();
         }
 
-        if (this.born > 3800) {
-
-        }
     }
 }

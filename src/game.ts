@@ -10,14 +10,14 @@ export default class Demo extends Phaser.Scene {
     }
 
     player: Phaser.Physics.Arcade.Sprite;
-   
+
     preload() {
         // Load in images and sprites
         this.load.spritesheet('player', 'player_walk_strip6.png',
             { frameWidth: 35, frameHeight: 57 });
         this.load.spritesheet('explosion', 'explosion.png',
             { frameWidth: 48, frameHeight: 48 }
-        ); 
+        );
 
         this.load.image('brick', 'brickred.png');
         this.load.image('brickgrey', 'brickgrey.png');
@@ -27,10 +27,6 @@ export default class Demo extends Phaser.Scene {
     }
 
     update(time, delta) {
-        //if (this.explosion1) {
-        //this.explosion1.update(time, delta);
-   // }
-
         this.player.setVelocityX(0);
         this.player.setVelocityY(0);
 
@@ -91,13 +87,16 @@ export default class Demo extends Phaser.Scene {
         this.anims.create({
             key: 'explode',
             frames: this.anims.generateFrameNumbers('explosion', { start: 0, end: 80 }),
-            frameRate: 40,
+            frameRate: 160,
             repeat: 1
         });
 
         for (let x = 0; x < 10; x++) {
             for (let y = 0; y < 10; y++) {
                 if ((x == 0) && (y == 0)) continue;
+                if ((x == 1) && (y == 0)) continue;
+                if ((x == 1) && (y == 1)) continue;
+                if ((x == 0) && (y == 1)) continue;
                 var walltype = Math.floor(Math.random() * 3);
                 if (walltype == 1) {
                     var brick = bricks.create(x * 60 + 30, y * 60 + 30);
@@ -122,6 +121,7 @@ export default class Demo extends Phaser.Scene {
         player.body.updateCenter();
         player.body.setOffset(0, 10);
         this.physics.add.collider(bricksGrey, player);
+        this.physics.add.collider(bricks, player);
 
         // Enables movement of player with WASD keys
         this.input.keyboard.on('keydown_W', function (event) {
@@ -147,10 +147,10 @@ export default class Demo extends Phaser.Scene {
 
 
         //this.explosion1 = new Explosion(this, 10, 10).setActive(false).setVisible(false);
-       // this.explosion2 = new Explosion(this, 10, 10).setActive(true).setVisible(false);
-       // this.explosion3 = new Explosion(this, 10, 10).setActive(true).setVisible(false);
-       // this.explosion4 = new Explosion(this, 10, 10).setActive(true).setVisible(false);
-       // this.explosion5 = new Explosion(this, 10, 10).setActive(true).setVisible(false);
+        // this.explosion2 = new Explosion(this, 10, 10).setActive(true).setVisible(false);
+        // this.explosion3 = new Explosion(this, 10, 10).setActive(true).setVisible(false);
+        // this.explosion4 = new Explosion(this, 10, 10).setActive(true).setVisible(false);
+        // this.explosion5 = new Explosion(this, 10, 10).setActive(true).setVisible(false);
 
 
         // var explosion = this.physics.add.sprite(30, 30, 'explosion');
@@ -158,43 +158,50 @@ export default class Demo extends Phaser.Scene {
         this.input.keyboard.on('keydown_SPACE', function (event) {
             var bomb = playerBullets.create(RoundTo(player.x - 30, 60) + 30, RoundTo(player.y - 30, 60) + 30).setActive(true).setVisible(true);
 
-            
+
             var explosion1 = new Explosion(scene, bomb.x, bomb.y);
-            var explosion2 =new Explosion(scene, bomb.x - 60, bomb.y);
-            var explosion3 =new Explosion(scene, bomb.x + 60, bomb.y);
-            var explosion4 =new Explosion(scene, bomb.x , bomb.y + 60);
-            var  explosion5 =new Explosion(scene, bomb.x, bomb.y - 60);
+            var explosion2 = new Explosion(scene, bomb.x - 60, bomb.y);
+            var explosion3 = new Explosion(scene, bomb.x + 60, bomb.y);
+            var explosion4 = new Explosion(scene, bomb.x, bomb.y + 60);
+            var explosion5 = new Explosion(scene, bomb.x, bomb.y - 60);
 
             explosion1.setVisible(false);
             explosion2.setVisible(false);
             explosion3.setVisible(false);
             explosion4.setVisible(false);
             explosion5.setVisible(false);
+
+            playerExplosions.add(explosion1, true);
+            playerExplosions.add(explosion2, true);
+            playerExplosions.add(explosion3, true);
+            playerExplosions.add(explosion4, true);
+            playerExplosions.add(explosion5, true);
+
             
-            playerExplosions.add(explosion1,true);
-            playerExplosions.add(explosion2,true);
-            playerExplosions.add(explosion3,true);
-            playerExplosions.add(explosion4,true);
-            playerExplosions.add(explosion5,true);
- 
+            scene.physics.add.overlap(explosion2, bricksGrey, greyWallCallback);
+            scene.physics.add.overlap(explosion3, bricksGrey, greyWallCallback);
+            scene.physics.add.overlap(explosion4, bricksGrey, greyWallCallback);
+            scene.physics.add.overlap(explosion5, bricksGrey, greyWallCallback);
+
+
             scene.physics.add.overlap(explosion1, bricks, enemyHitCallback);
-            //        var pokus = this;
-            //        bricks.getChildren().forEach(function(brick){
-            //            pokus.physics.overlap(brick,explosion1, function(brick, explosion1) {brick.setVisible(false);   }, null, this);           });
+            scene.physics.add.overlap(explosion2, bricks, enemyHitCallback);
+            scene.physics.add.overlap(explosion3, bricks, enemyHitCallback);
+            scene.physics.add.overlap(explosion4, bricks, enemyHitCallback);
+            scene.physics.add.overlap(explosion5, bricks, enemyHitCallback);
 
         });
 
-        //   item.body.velocity.x = -120;
+        function greyWallCallback(explosion:Explosion, brick:Phaser.Physics.Arcade.Sprite) {
+            explosion.destroy();
+        }
 
-
-
-        //  });
-        function enemyHitCallback(explosion, brick) {
+        function enemyHitCallback(explosion:Explosion, brick:Phaser.Physics.Arcade.Sprite) {
             explosion.destroyBrick(brick);
         }
 
-        function isOdd(num) { return (num % 2) == 1; }
-        function RoundTo(number, roundto) {
+        function isOdd(num:number) { return (num % 2) == 1; }
+        function RoundTo(number:number, roundto:number) {
             return roundto * Math.round(number / roundto);
         }
 

@@ -2,9 +2,8 @@ import 'phaser';
 
 export class Bomb extends Phaser.GameObjects.Sprite {
     born: integer = 0;
-    constructor(scene, x, y) {
+    constructor(scene:Phaser.Scene, x:number, y:number) {
         super(scene, x, y, 'bomb');
-
     }
 
     update(time, delta) {
@@ -14,6 +13,5 @@ export class Bomb extends Phaser.GameObjects.Sprite {
             this.setVisible(false);
             this.destroy();
         }
-
     }
 }

@@ -24,7 +24,7 @@ export default class BlockDestroyer extends Phaser.Scene {
         this.load.image('brick', 'brickred.png');
         this.load.image('brickgrey', 'brickgrey.png');
         this.load.image('bomb', 'bomb.png');
-    //    this.load.image('enemy', 'jira.png');
+        this.load.image('enemy', 'jira.png');
 
         this.enemyCount = 10;
     }

@@ -12,6 +12,8 @@ export default class BlockDestroyer extends Phaser.Scene {
 
     player: Phaser.Physics.Arcade.Sprite;
     enemyCount: number;
+    lifeCount: number = 3;
+    score: number =0;
 
     preload() {
         // Load in images and sprites
@@ -61,6 +63,8 @@ export default class BlockDestroyer extends Phaser.Scene {
     }
 
     create() {
+
+
         var bricks = this.physics.add.staticGroup(
             {
                 defaultKey: 'brick',
@@ -82,7 +86,7 @@ export default class BlockDestroyer extends Phaser.Scene {
         var playerBullets = this.physics.add.group({ classType: Bomb, runChildUpdate: true });
         var enemies = this.physics.add.group({ classType: Enemy, runChildUpdate: true });
         var playerExplosions = this.physics.add.group({ classType: Explosion, runChildUpdate: true });
-        this.physics.world.setBounds(0, 0, 600, 600);
+        this.physics.world.setBounds(0, 0, 720, 720);
 
 
         this.anims.create({
@@ -99,12 +103,23 @@ export default class BlockDestroyer extends Phaser.Scene {
             repeat: 1
         });
 
-        for (let x = 0; x < 10; x++) {
-            for (let y = 0; y < 10; y++) {
-                if ((x == 0) && (y == 0)) continue;
-                if ((x == 1) && (y == 0)) continue;
+        for (let x = 0; x <= 11; x++) {
+                bricksGrey.create(x * 60 + 30, 11 * 60 + 30);
+                bricksGrey.create(x * 60 + 30, 0 * 60 + 30);
+        }
+        for (let y = 0; y <= 11; y++) {
+            bricksGrey.create(0 * 60 + 30, y * 60 + 30);
+            bricksGrey.create(11 * 60 + 30, y * 60 + 30);
+    }
+
+
+
+        for (let x = 1; x < 11; x++) {
+            for (let y = 1; y < 11; y++) {
                 if ((x == 1) && (y == 1)) continue;
-                if ((x == 0) && (y == 1)) continue;
+                if ((x == 2) && (y == 1)) continue;
+                if ((x == 2) && (y == 2)) continue;
+                if ((x == 1) && (y == 2)) continue;
                 var walltype = Math.floor(Math.random() * 3);
                 if (walltype == 1) {
                     var brick = bricks.create(x * 60 + 30, y * 60 + 30);
@@ -124,7 +139,7 @@ export default class BlockDestroyer extends Phaser.Scene {
 
         }
 
-        var player = this.physics.add.sprite(0, 0, 'player');
+        var player = this.physics.add.sprite(90, 90, 'player');
 
 
         this.player = player;
@@ -211,6 +226,11 @@ export default class BlockDestroyer extends Phaser.Scene {
 
         });
 
+        
+        var scoreText = this.add.text(16, 720, 'lifes: 0', { fontSize: '20px', fill: '#ffffff' });
+        var scoreText = this.add.text(300, 720, 'score: 0', { fontSize: '20px', fill: '#ffffff' });
+        var scoreText = this.add.text(580, 720, 'enemies: 0', { fontSize: '20px', fill: '#ffffff' });
+
         function greyWallCallback(explosion:Explosion, brick:Phaser.Physics.Arcade.Sprite) {
             explosion.destroy();
         }
@@ -230,8 +250,8 @@ export default class BlockDestroyer extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     scene: BlockDestroyer,
-    width: 600,
-    height: 600,
+    width: 720,
+    height: 740,
     physics: {
         default: 'arcade',
         arcade: {

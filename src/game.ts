@@ -1,15 +1,17 @@
 import 'phaser';
 import { Bomb } from './bomb';
 import { Explosion } from './explosion';
+import { Enemy } from './Enemy';
 
-export default class Demo extends Phaser.Scene {
+export default class BlockDestroyer extends Phaser.Scene {
 
     constructor() {
-        super('demo');
+        super('BlockDestroyer');
 
     }
 
     player: Phaser.Physics.Arcade.Sprite;
+    enemyCount: number;
 
     preload() {
         // Load in images and sprites
@@ -22,8 +24,9 @@ export default class Demo extends Phaser.Scene {
         this.load.image('brick', 'brickred.png');
         this.load.image('brickgrey', 'brickgrey.png');
         this.load.image('bomb', 'bomb.png');
+    //    this.load.image('enemy', 'jira.png');
 
-
+        this.enemyCount = 10;
     }
 
     update(time, delta) {
@@ -72,7 +75,12 @@ export default class Demo extends Phaser.Scene {
 
             });
 
+        var enemies = this.physics.add.group(
+            {defaultKey: 'enemy'}
+        )
+
         var playerBullets = this.physics.add.group({ classType: Bomb, runChildUpdate: true });
+        var enemies = this.physics.add.group({ classType: Enemy, runChildUpdate: true });
         var playerExplosions = this.physics.add.group({ classType: Explosion, runChildUpdate: true });
         this.physics.world.setBounds(0, 0, 600, 600);
 
@@ -105,11 +113,19 @@ export default class Demo extends Phaser.Scene {
                 if ((walltype == 2) && (isOdd(x))) {
                     bricksGrey.create(x * 60 + 30, y * 60 + 30);
                 }
+                if (walltype == 0) {
+                    var randomEnemy = Math.floor(Math.random() * 10)
+                    if ((randomEnemy == 0 ) && (this.enemyCount>0)){ 
+                        enemies.create(x * 60 + 30, y * 60 + 30);
+                        this.enemyCount--;
+                    }
+                }
             }
 
         }
 
         var player = this.physics.add.sprite(0, 0, 'player');
+
 
         this.player = player;
         // player.setMaxVelocity(100,d100);
@@ -122,6 +138,9 @@ export default class Demo extends Phaser.Scene {
         player.body.setOffset(0, 10);
         this.physics.add.collider(bricksGrey, player);
         this.physics.add.collider(bricks, player);
+        this.physics.add.collider(enemies, player);
+        this.physics.add.collider(enemies, bricks);
+        this.physics.add.collider(enemies, bricksGrey);
 
         // Enables movement of player with WASD keys
         this.input.keyboard.on('keydown_W', function (event) {
@@ -210,7 +229,7 @@ export default class Demo extends Phaser.Scene {
 
 const config = {
     type: Phaser.AUTO,
-    scene: Demo,
+    scene: BlockDestroyer,
     width: 600,
     height: 600,
     physics: {
